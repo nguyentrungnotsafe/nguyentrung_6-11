@@ -1,0 +1,6 @@
+{
+  "name": "Nguyễn Thành Trung - Happy Birthday",
+  "description": "Website mừng sinh nhật Nguyễn Thành Trung (06/11/2012) - Lớp 9C2 - Đỗ THPT Nam Tiền Hải",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
