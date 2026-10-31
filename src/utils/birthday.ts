@@ -24,7 +24,7 @@ export const CAT_STICKERS: CatSticker[] = [
   {
     id: 'cat_ribbon',
     name: 'Mèo Nơ Hồng Baby',
-    src: '/assets/aistudio/download_6829546b.jpg',
+    src: './assets/aistudio/download_6829546b.jpg',
     caption: 'Mèo nơ hồng kute phô mai que',
     meowQuote: 'Meo meo~ Chúc Trung sinh nhật siêu vui vẻ nha!',
     badge: '🎀 Cute'
@@ -32,7 +32,7 @@ export const CAT_STICKERS: CatSticker[] = [
   {
     id: 'cat_flower',
     name: 'Mèo Bông Hoa Hồng',
-    src: '/assets/aistudio/download_8895f34f.jpg',
+    src: './assets/aistudio/download_8895f34f.jpg',
     caption: 'Mắt to tròn lấp lánh như sao biển',
     meowQuote: 'Purrr~ Cố lên nhé, THPT Nam Tiền Hải thẳng tiến!',
     badge: '🌸 Ngọt ngào'
@@ -40,7 +40,7 @@ export const CAT_STICKERS: CatSticker[] = [
   {
     id: 'cat_milk',
     name: 'Mèo Bình Sữa Má Hồng',
-    src: '/assets/aistudio/download_c16407ef.jpg',
+    src: './assets/aistudio/download_c16407ef.jpg',
     caption: 'Uống sữa mau lớn, học giỏi đỗ cấp 3',
     meowQuote: 'Ngoan ngoãn uống sữa nè, chúc bạn thêm tuổi mới tràn đầy năng lượng!',
     badge: '🍼 Bé bi'
@@ -48,7 +48,7 @@ export const CAT_STICKERS: CatSticker[] = [
   {
     id: 'cat_gentle',
     name: 'Mèo Má Phính Đáng Yêu',
-    src: '/assets/aistudio/download_d0c53874.jpg',
+    src: './assets/aistudio/download_d0c53874.jpg',
     caption: 'Gương mặt uy tín của lớp 9C2',
     meowQuote: 'Meoww! 9C2 mãi đỉnh, Trung mãi là idol!',
     badge: '👑 Uy tín'
@@ -56,7 +56,7 @@ export const CAT_STICKERS: CatSticker[] = [
   {
     id: 'cat_sprout',
     name: 'Mèo Mầm Hoa May Mắn',
-    src: '/assets/aistudio/download_fae31891.jpg',
+    src: './assets/aistudio/download_fae31891.jpg',
     caption: 'Cõng bông hoa may mắn trên đầu',
     meowQuote: 'Hoa nở rực rỡ mang đến 100% may mắn thi đỗ Nam Tiền Hải!',
     badge: '🍀 May mắn'
@@ -64,7 +64,7 @@ export const CAT_STICKERS: CatSticker[] = [
   {
     id: 'cat_minion',
     name: 'Mèo Minion Kính Ngầu',
-    src: '/assets/aistudio/download_3ada55c7.jpg',
+    src: './assets/aistudio/download_3ada55c7.jpg',
     caption: 'Bộ đồ Minion đeo kính cực chất',
     meowQuote: 'Bello! Sinh nhật quẩy hết mình nha người anh em!',
     badge: '😎 Cực ngầu'
@@ -72,9 +72,9 @@ export const CAT_STICKERS: CatSticker[] = [
   {
     id: 'cat_angel',
     name: 'Mèo Thiên Thần Nơ Xanh',
-    src: '/assets/aistudio/download_fafd80be.jpg',
+    src: './assets/aistudio/download_fafd80be.jpg',
     caption: 'Tone xanh dương trắng tone-sur-tone cực hợp gu',
-    meowQuote: 'Nơ xanh dịu dàng chúc mọi điều ước sinh nhật đều thành hiện thực!',
+    meowQuote: 'Ngoan hiền nơ xanh chúc mọi điều ước sinh nhật đều thành hiện thực!',
     badge: '💙 Thiên thần'
   }
 ];
