@@ -8,6 +8,11 @@ export default defineConfig(() => {
   return {
     base: './',
     plugins: [react(), tailwindcss(), viteSingleFile()],
+    build: {
+      rollupOptions: {
+        input: path.resolve(__dirname, 'dev.html'),
+      },
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
