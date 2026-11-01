@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import {
   MessageSquareHeart,
@@ -7,19 +7,51 @@ import {
   Sparkles,
   User,
   CheckCircle,
-  PartyPopper
+  Clock,
+  Trash2,
+  Gift
 } from 'lucide-react';
 import { Wish } from '../types';
 import { CAT_STICKERS, validateWish } from '../utils/birthday';
 import { soundManager } from '../utils/audio';
 
+const WISHES_STORAGE_KEY = 'trung_birthday_wishes_saved_v3';
+
 export const WishesSection: React.FC = () => {
+  const [wishes, setWishes] = useState<Wish[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem(WISHES_STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) {
+            return parsed;
+          }
+        }
+      } catch {
+        // fallback
+      }
+    }
+    return [];
+  });
+
   const [author, setAuthor] = useState('');
   const [role, setRole] = useState('Bạn thân 9C2');
   const [content, setContent] = useState('');
   const [selectedStickerId, setSelectedStickerId] = useState(CAT_STICKERS[0].id);
   const [formError, setFormError] = useState('');
-  const [lastSubmittedWish, setLastSubmittedWish] = useState<Wish | null>(null);
+  const [justSubmitted, setJustSubmitted] = useState(false);
+
+  // Sync to localStorage whenever wishes change
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(WISHES_STORAGE_KEY, JSON.stringify(wishes));
+      } catch {
+        // ignore
+      }
+    }
+  }, [wishes]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,7 +66,7 @@ export const WishesSection: React.FC = () => {
 
     setFormError('');
     const newWish: Wish = {
-      id: `wish-${Date.now()}`,
+      id: `wish-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       author: author.trim(),
       role: role.trim() || 'Bạn thân',
       content: content.trim(),
@@ -43,9 +75,17 @@ export const WishesSection: React.FC = () => {
       likes: 1
     };
 
-    setLastSubmittedWish(newWish);
+    const nextWishes = [newWish, ...wishes];
+    setWishes(nextWishes);
+    try {
+      localStorage.setItem(WISHES_STORAGE_KEY, JSON.stringify(nextWishes));
+    } catch {
+      // ignore
+    }
+
     setAuthor('');
     setContent('');
+    setJustSubmitted(true);
     soundManager.playSuccess();
 
     confetti({
@@ -54,12 +94,37 @@ export const WishesSection: React.FC = () => {
       origin: { y: 0.6 },
       colors: ['#38bdf8', '#fb7185', '#60a5fa', '#34d399', '#facc15']
     });
+
+    setTimeout(() => {
+      setJustSubmitted(false);
+    }, 4000);
+  };
+
+  const handleLikeWish = (wishId: string) => {
+    soundManager.playPop();
+    const updated = wishes.map((w) =>
+      w.id === wishId ? { ...w, likes: w.likes + 1 } : w
+    );
+    setWishes(updated);
+  };
+
+  const handleDeleteWish = (wishId: string) => {
+    soundManager.playPop();
+    const updated = wishes.filter((w) => w.id !== wishId);
+    setWishes(updated);
+  };
+
+  const formatWishTime = (ts: number) => {
+    const d = new Date(ts);
+    const hours = d.getHours().toString().padStart(2, '0');
+    const minutes = d.getMinutes().toString().padStart(2, '0');
+    const day = d.getDate().toString().padStart(2, '0');
+    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    const year = d.getFullYear();
+    return `${hours}:${minutes} • ${day}/${month}/${year}`;
   };
 
   const selectedCat = CAT_STICKERS.find((c) => c.id === selectedStickerId) || CAT_STICKERS[0];
-  const lastWishCat = lastSubmittedWish
-    ? CAT_STICKERS.find((c) => c.id === lastSubmittedWish.stickerId) || CAT_STICKERS[0]
-    : null;
 
   return (
     <section id="wishes" className="py-10 sm:py-16 bg-gradient-to-b from-sky-50/60 via-blue-50/40 to-white relative">
@@ -203,6 +268,14 @@ export const WishesSection: React.FC = () => {
               </div>
             )}
 
+            {/* Submit Success feedback toast */}
+            {justSubmitted && (
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs text-emerald-800 font-semibold flex items-center gap-2 animate-fadeIn">
+                <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>Lời chúc của bạn đã được gửi và lưu trữ thành công! 🎉</span>
+              </div>
+            )}
+
             {/* Submit Button */}
             <button
               type="submit"
@@ -212,35 +285,101 @@ export const WishesSection: React.FC = () => {
               <span>Gửi Lời Chúc Cho Trung</span>
             </button>
           </form>
-
-          {/* Success Card when user submits a wish */}
-          {lastSubmittedWish && lastWishCat && (
-            <div className="mt-6 p-4 sm:p-5 bg-sky-50/90 rounded-2xl border-2 border-sky-200 animate-fadeIn">
-              <div className="flex items-center gap-2 text-emerald-600 text-xs font-bold mb-2">
-                <CheckCircle className="w-4 h-4 text-emerald-600" />
-                <span>Lời chúc của bạn đã được gửi thành công! Cảm ơn bạn rất nhiều! 🎉</span>
-              </div>
-              <div className="flex items-start gap-3 bg-white p-3 rounded-xl border border-sky-100 shadow-xs">
-                <img
-                  src={lastWishCat.src}
-                  alt={lastWishCat.name}
-                  className="w-12 h-12 rounded-xl object-cover ring-1 ring-blue-200"
-                />
-                <div className="flex-1 text-xs">
-                  <div className="flex items-center gap-1.5 font-bold text-blue-950">
-                    <span>{lastSubmittedWish.author}</span>
-                    <span className="text-[10px] px-1.5 py-0.2 rounded-md bg-blue-50 text-blue-700 border border-blue-100">
-                      {lastSubmittedWish.role}
-                    </span>
-                  </div>
-                  <p className="text-slate-700 mt-1 italic leading-relaxed">
-                    "{lastSubmittedWish.content}"
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
+
+        {/* Saved Wishes List that PERSISTS across refreshes */}
+        {wishes.length > 0 && (
+          <div className="mt-8 space-y-4 animate-fadeIn">
+            <div className="flex items-center justify-between px-2">
+              <div className="flex items-center gap-2">
+                <Gift className="w-4 h-4 text-blue-600" />
+                <h3 className="text-base sm:text-lg font-bold text-blue-950 font-cute">
+                  Lời Chúc Đã Nhận ({wishes.length})
+                </h3>
+              </div>
+              <span className="text-xs text-emerald-600 font-medium bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                Đã lưu an toàn ✨
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              {wishes.map((wish) => {
+                const sticker = CAT_STICKERS.find((c) => c.id === wish.stickerId) || CAT_STICKERS[0];
+                return (
+                  <div
+                    key={wish.id}
+                    className="bg-white rounded-2xl p-4 sm:p-5 border-2 border-blue-100 shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row gap-3.5 items-start relative group"
+                  >
+                    {/* Attached Cat Sticker Avatar */}
+                    <div
+                      className="relative shrink-0 cursor-pointer"
+                      onClick={() => soundManager.playMeow()}
+                      title="Bấm để nghe mèo meo meo"
+                    >
+                      <img
+                        src={sticker.src}
+                        alt={sticker.name}
+                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover ring-2 ring-blue-200 group-hover:scale-105 transition-transform"
+                      />
+                      <span className="absolute -bottom-1 -right-1 text-[9px] font-bold px-1 rounded-md bg-sky-100 text-sky-800 border border-sky-200">
+                        {sticker.badge}
+                      </span>
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1 w-full">
+                      <div className="flex flex-wrap items-center justify-between gap-1 mb-1">
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-sm font-bold text-blue-950 font-cute">
+                            {wish.author}
+                          </h4>
+                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100">
+                            {wish.role || 'Bạn thân'}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2 text-[11px] text-slate-400">
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            <span>{formatWishTime(wish.timestamp)}</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteWish(wish.id)}
+                            title="Xóa lời chúc này"
+                            className="text-slate-300 hover:text-rose-500 p-1 rounded-md transition-colors cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <p className="text-slate-700 text-xs sm:text-sm leading-relaxed mt-1 whitespace-pre-wrap">
+                        {wish.content}
+                      </p>
+
+                      {/* Bottom Footer Quote & Like */}
+                      <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between">
+                        <span className="text-[11px] text-sky-600 italic">
+                          🐾 "{sticker.meowQuote}"
+                        </span>
+
+                        <button
+                          type="button"
+                          onClick={() => handleLikeWish(wish.id)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold border border-rose-200 transition-all cursor-pointer active:scale-95"
+                        >
+                          <Heart className="w-3.5 h-3.5 fill-rose-500 text-rose-500" />
+                          <span>{wish.likes}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
